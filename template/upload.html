@@ -1,0 +1,168 @@
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to GPX Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            text-align: center;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 0 auto 10px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #download-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload CSV to Convert to GPX</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="csv_file">
+        <button type="submit">Convert</button>
+    </form>
+    <div id="result" style="display: none;">
+        <h2>Download GPX</h2>
+        <a id="download-link" href="#">Download GPX file</a>
+    </div>
+    <script>
+       
+    </script>
+</body>
+</html>-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to GPX Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            text-align: center;
+        }
+        input[type="file"] {
+            display: block;
+            margin: 0 auto 10px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #download-link {
+            color: #007bff;
+            text-decoration: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload CSV to Convert to GPX</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="csv_file">
+        <button type="submit">Convert</button>
+    </form>
+    <div id="result">
+        <h2 id="success-message" style="display: none;">File downloaded successfully!</h2>
+        <a id="download-link" href="#" download>Download GPX file</a>
+    </div>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch("{% url 'upload_file' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            }).then(response => {
+                if (response.ok) {
+                    document.getElementById('download-link').style.display = 'block';
+                    document.getElementById('success-message').style.display = 'block';
+                    return response.blob();
+                } else {
+                    throw new Error('Conversion failed');
+                }
+            }).then(blob => {
+                var url = window.URL.createObjectURL(blob);
+                var a = document.getElementById('download-link');
+                a.href = url;
+            }).catch(error => {
+                console.error('Conversion failed:', error);
+                alert('Conversion failed');
+            });
+        });
+    </script>
+</body>
+</html>
+
+
