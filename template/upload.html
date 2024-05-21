@@ -134,34 +134,57 @@
         <h2 id="success-message" style="display: none;">File downloaded successfully!</h2>
         <a id="download-link" href="#" download>Download GPX file</a>
     </div>
+    
     <script>
+        var uploadedFile = null; // Variable to store the uploaded file
+    
         document.getElementById('upload-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var formData = new FormData(this);
+            event.preventDefault(); // Prevent the default form submission behavior
+    
+            var formData = new FormData(this); // Get form data
+    
+            // Make a fetch request to your server endpoint
             fetch("{% url 'upload_file' %}", {
                 method: 'POST',
-                body: formData,
+                body: formData, // Pass form data in the request body
                 headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // Include CSRF token
                 }
             }).then(response => {
                 if (response.ok) {
-                    document.getElementById('download-link').style.display = 'block';
-                    document.getElementById('success-message').style.display = 'block';
-                    return response.blob();
+                    return response.blob(); // If the response is OK, return the blob data
                 } else {
-                    throw new Error('Conversion failed');
+                    throw new Error('Conversion failed'); // If the response is not OK, throw an error
                 }
             }).then(blob => {
-                var url = window.URL.createObjectURL(blob);
+                uploadedFile = blob; // Store the uploaded file data
+                var url = window.URL.createObjectURL(blob); // Create a URL for the blob data
                 var a = document.getElementById('download-link');
-                a.href = url;
+                a.href = url; // Set the href attribute of the download link to the blob URL
+                a.style.display = 'block'; // Show the download link
+                document.getElementById('success-message').style.display = 'block'; // Show success message
             }).catch(error => {
                 console.error('Conversion failed:', error);
                 alert('Conversion failed');
             });
         });
+    
+        // Add an event listener to the convert button
+        document.getElementById('convert-button').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default button click behavior
+    
+            if (uploadedFile) { // Check if a file has been uploaded
+                var url = window.URL.createObjectURL(uploadedFile); // Create a URL for the uploaded file data
+                var a = document.getElementById('download-link');
+                a.href = url; // Set the href attribute of the download link to the uploaded file URL
+                a.click(); // Simulate a click on the download link to trigger the download
+            } else {
+                alert('Please upload a file first.'); // Alert the user if no file has been uploaded
+            }
+        });
     </script>
+    
+    
 </body>
 </html>
 

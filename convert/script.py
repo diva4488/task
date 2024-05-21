@@ -116,6 +116,7 @@ def convert_to_ist( time_str):
     #print(time_str)
     #time_obj = datetime.strptime(time_str, "%Y/%m/%d %H:%M:%S")
     # "2024-01-22 07:46:57"
+    
     time_obj = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
     #time_obj = datetime.strptime(time_str, "%m/%d/%Y %H:%M:%S")
     fixed_offset = timedelta(hours=5, minutes=30)
