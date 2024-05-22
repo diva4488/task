@@ -135,7 +135,9 @@
         <a id="download-link" href="#" download>Download GPX file</a>
     </div>
     
+    
     <script>
+
         var uploadedFile = null; // Variable to store the uploaded file
     
         document.getElementById('upload-form').addEventListener('submit', function(event) {
@@ -151,15 +153,25 @@
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // Include CSRF token
                 }
             }).then(response => {
-                if (response.ok) {
-                    return response.blob(); // If the response is OK, return the blob data
-                } else {
+                if (!response.ok) {
                     throw new Error('Conversion failed'); // If the response is not OK, throw an error
                 }
-            }).then(blob => {
+                // Extract filename from response headers
+                var contentDisposition = response.headers.get('Content-Disposition');
+                var filename = '';
+                if (contentDisposition && contentDisposition.indexOf('attachment') !== -1) {
+                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    var matches = filenameRegex.exec(contentDisposition);
+                    if (matches != null && matches[1]) {
+                        filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+                return response.blob().then(blob => ({ blob, filename }));
+            }).then(({ blob, filename }) => {
                 uploadedFile = blob; // Store the uploaded file data
                 var url = window.URL.createObjectURL(blob); // Create a URL for the blob data
                 var a = document.getElementById('download-link');
+                a.download = filename || '{{ default_file_name }}'; // Set filename or default filename
                 a.href = url; // Set the href attribute of the download link to the blob URL
                 a.style.display = 'block'; // Show the download link
                 document.getElementById('success-message').style.display = 'block'; // Show success message
@@ -173,17 +185,17 @@
         document.getElementById('convert-button').addEventListener('click', function(event) {
             event.preventDefault(); // Prevent the default button click behavior
     
-            if (uploadedFile) { // Check if a file has been uploaded
-                var url = window.URL.createObjectURL(uploadedFile); // Create a URL for the uploaded file data
+            if (uploadedFile) { 
+                var url = window.URL.createObjectURL(uploadedFile);
+                console.log(url)
                 var a = document.getElementById('download-link');
-                a.href = url; // Set the href attribute of the download link to the uploaded file URL
-                a.click(); // Simulate a click on the download link to trigger the download
+                a.href = url; 
+                a.click(); 
             } else {
                 alert('Please upload a file first.'); // Alert the user if no file has been uploaded
             }
         });
     </script>
-    
     
 </body>
 </html>
